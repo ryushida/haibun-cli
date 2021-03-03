@@ -15,10 +15,10 @@ mod sql;
 
 #[derive(StructOpt)]
 struct Cli {
-    /// Main Command
+    /// view, add
     main: String,
 
-    ///  Sub Command
+    ///  expense, subscriptions
     sub: String,
 
     /// Value
