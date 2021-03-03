@@ -102,8 +102,6 @@ fn main() {
     let main = args.main.as_str();
     let sub = args.sub.as_str();
 
-    println!("{} {}", main, sub);
-
     if main == "view" {
         if sub == "expense" {
             sql::get_expense(pool.clone());
