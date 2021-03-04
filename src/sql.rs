@@ -6,7 +6,7 @@ use rust_decimal::prelude::*;
 
 use crate::interface;
 
-fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
+pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 

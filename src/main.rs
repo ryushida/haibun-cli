@@ -18,7 +18,7 @@ struct Cli {
     /// view, add
     main: String,
 
-    ///  expense, subscriptions
+    ///  accounts, expense, subscriptions
     sub: String,
 
     /// Value
@@ -107,6 +107,8 @@ fn main() {
             sql::get_expense(pool.clone());
         } else if sub == "subscriptions" {
             sql::get_subscriptions(pool.clone());
+        } else if sub == "accounts" {
+            sql::get_account_ids(pool.clone());
         }
     } else if main == "add" {
         if sub == "expense" {
