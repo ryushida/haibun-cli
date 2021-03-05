@@ -147,7 +147,7 @@ fn main() {
                     }
                 }
                 Sub::Add(opt) => {
-                    sql::add_expense(pool.clone());
+                    interface::add_expense_prompt(pool.clone());
                 }
                 Sub::Manage(opt) => {}
             }

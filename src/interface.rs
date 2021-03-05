@@ -67,6 +67,26 @@ pub fn expense_rows_to_table(rows: Vec<Row>) -> String {
     table.to_string()
 }
 
+pub fn expense_category_rows_to_table(rows: Vec<Row>) -> String {
+    let mut table = comfy_table::Table::new();
+    table
+        .load_preset(ASCII_MARKDOWN)
+        .set_content_arrangement(ContentArrangement::Dynamic)
+        .set_header(vec!["id", "Category"]);
+
+    for row in rows {
+        let id: i32 = row.get(0);
+        let category: String = row.get(1);
+
+        table.add_row(vec![
+            Cell::new(id),
+            Cell::new(category),
+        ]);
+    }
+
+    table.to_string()
+}
+
 pub fn subscription_rows_to_table(rows: Vec<Row>) -> String {
     let mut table = comfy_table::Table::new();
     table
@@ -107,6 +127,28 @@ pub fn account_rows_to_table(rows: Vec<Row>) -> String {
     }
 
     table.to_string()
+}
+
+pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
+    let date = user_input_date("Enter date");
+
+    let table_vec:Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
+    let table_string = account_rows_to_table(table_vec);
+    println!("{}", table_string);
+    
+    let account_id = user_input_int("Enter ID");
+
+    let expense_input = user_input_float("Enter Amount");
+    let expense_value: Decimal = Decimal::from_str(&expense_input.to_string()).unwrap();
+
+    let expense_vec: Vec<Row> = sql::get_expense_categories(pool.clone()).unwrap();
+    let expense_table_string = expense_category_rows_to_table(expense_vec);
+    println!("{}", expense_table_string);
+    let category_id = user_input_int("Enter number");
+
+    let note = user_input_text("Note");
+
+    sql::add_expense(pool.clone(), date, account_id, expense_value, category_id, note);
 }
 
 

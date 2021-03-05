@@ -1,4 +1,4 @@
-use chrono::NaiveDate;
+use chrono::{NaiveDate, NaiveTime};
 use postgres::{Error, NoTls, Row};
 use r2d2;
 use r2d2_postgres::PostgresConnectionManager;
@@ -15,20 +15,13 @@ pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Re
     Ok(rows)
 }
 
-fn get_expense_categories(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
+pub fn get_expense_categories(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
-    for row in client.query(
-        "SELECT category_id, category_name FROM expense_category",
-        &[],
-    )? {
-        let id: i32 = row.get(0);
-        let name: &str = row.get(1);
-        println!("{} {}", id, name);
-    }
+    let rows = client.query("SELECT category_id, category_name FROM expense_category", &[])?;
 
-    Ok(())
+    Ok(rows)
 }
 
 pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
@@ -96,23 +89,9 @@ pub fn get_subscriptions(
     Ok(rows)
 }
 
-pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
+pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: NaiveDate, account_id: i32, expense_value: Decimal, category_id: i32, note: String) -> Result<(), Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
-        pool.get().unwrap();
-
-    let date = interface::user_input_date("Enter date");
-
-    let accounts_vec: Vec<Row> = get_account_ids(pool.clone()).unwrap();
-    interface::print_account_rows(accounts_vec);
-    let account_id = interface::user_input_int("Enter Number");
-
-    let expense_input = interface::user_input_float("Enter Amount");
-    let expense_value: Decimal = Decimal::from_str(&expense_input.to_string()).unwrap();
-
-    get_expense_categories(pool.clone())?;
-    let category_id = interface::user_input_int("Enter number");
-
-    let note = interface::user_input_text("Note");
+        pool.get().unwrap();    
 
     client.execute(
         "INSERT INTO expense (expense_id, date, account_id, amount, category_id, note)
