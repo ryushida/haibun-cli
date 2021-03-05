@@ -50,7 +50,7 @@ pub fn expense_rows_to_table(rows: Vec<Row>) -> String {
         let id: i32 = row.get(0);
         let date: NaiveDate = row.get(1);
         let account: &str = row.get(2);
-        let amount: Decimal = row.get(3);
+        let amount: &str = row.get(3);
         let category: &str = row.get(4);
         let notes: &str = row.get(5);
 

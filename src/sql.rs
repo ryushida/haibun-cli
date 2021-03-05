@@ -27,7 +27,7 @@ pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result
         pool.get().unwrap();
 
     let q = "SELECT expense.expense_id, expense.date,
-                         account.account_name, expense.amount,
+                         account.account_name, to_char(expense.amount, '999999999.00'),
                          expense_category.category_name, expense.note
                   FROM expense
                   LEFT JOIN expense_category
@@ -51,7 +51,7 @@ pub fn get_expense_num(
     // Get last n expense
     let q = "WITH t AS (
                     SELECT expense.expense_id, expense.date,
-                            account.account_name, expense.amount,
+                            account.account_name, to_char(expense.amount, '999999999.00'),
                             expense_category.category_name, expense.note
                     FROM expense
                     LEFT JOIN expense_category
