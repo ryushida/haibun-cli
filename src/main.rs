@@ -1,5 +1,6 @@
 extern crate directories;
 use directories::ProjectDirs;
+use postgres::Row;
 use r2d2;
 use r2d2_postgres::{postgres::NoTls, PostgresConnectionManager};
 use serde::{Deserialize, Serialize};
@@ -14,36 +15,35 @@ mod interface;
 mod sql;
 
 #[derive(StructOpt)]
-pub struct Opts{
+pub struct Opts {
     /// expense, subscriptions, accounts
     main: String,
 
     // SUBCOMMAND
     #[structopt(subcommand)]
-    subcommand: Option<Sub>
+    subcommand: Option<Sub>,
 }
 
 #[derive(StructOpt)]
 enum Sub {
     /// View items
     #[structopt(name = "view")]
-    View (ViewOpts),
+    View(ViewOpts),
 
     /// Add new
     #[structopt(name = "add")]
-    Add (AddOpts),
+    Add(AddOpts),
 }
 
 #[derive(StructOpt, Debug)]
 struct ViewOpts {
     /// Specify Number of Items to Display
     #[structopt(short)]
-    number: Option<String>
+    number: Option<String>,
 }
 
 #[derive(StructOpt, Debug)]
-struct AddOpts {
-}
+struct AddOpts {}
 
 #[derive(Serialize, Deserialize)]
 struct Config {
@@ -125,13 +125,17 @@ fn main() {
             match subcommand {
                 Sub::View(opt) => {
                     if opt.number.is_none() {
-                        sql::get_expense(pool.clone());
+                        let table_vec: Vec<Row> = sql::get_expense(pool.clone()).unwrap();
+                        let table_string = interface::expense_rows_to_table(table_vec);
+                        println!("{}", table_string);
                     } else {
                         let count = opt.number.as_deref().unwrap().parse::<i32>().unwrap();
-                        
+
                         if count > 0 {
-                            println!("{}", count);
-                            sql::get_expense_num(pool.clone(), i64::from(count));
+                            let table_vec: Vec<Row> =
+                                sql::get_expense_num(pool.clone(), i64::from(count)).unwrap();
+                            let table_string = interface::expense_rows_to_table(table_vec);
+                            println!("{}", table_string);
                         }
                     }
                 }
@@ -142,27 +146,28 @@ fn main() {
         } else {
             sql::get_expense(pool.clone());
         }
-    } else if args.main == "subscriptions" {
+    } else if args.main == "subscription" {
         if let Some(subcommand) = args.subcommand {
             match subcommand {
                 Sub::View(opt) => {
-                    sql::get_subscriptions(pool.clone());
+                    let table_vec: Vec<Row> = sql::get_subscriptions(pool.clone()).unwrap();
+                    let table_string = interface::subscription_rows_to_table(table_vec);
+                    println!("{}", table_string);
                 }
-                Sub::Add(opt) => {
-                    sql::get_subscriptions(pool.clone());
-                }
+                Sub::Add(opt) => {}
             }
         } else {
-            sql::get_subscriptions(pool.clone());
+            let table_vec: Vec<Row> = sql::get_subscriptions(pool.clone()).unwrap();
+            let table_string = interface::subscription_rows_to_table(table_vec);
+            println!("{}", table_string);
         }
-    } else if args.main == "accounts" {
+    } else if args.main == "account" {
         if let Some(subcommand) = args.subcommand {
             match subcommand {
                 Sub::View(opt) => {
                     sql::get_account_ids(pool.clone());
                 }
-                Sub::Add(opt) => {
-                }
+                Sub::Add(opt) => {}
             }
         } else {
             sql::get_account_ids(pool.clone());
