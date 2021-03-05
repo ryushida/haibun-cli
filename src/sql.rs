@@ -1,5 +1,5 @@
 use chrono::NaiveDate;
-use postgres::{Error, NoTls};
+use postgres::{Error, NoTls, Row};
 use r2d2;
 use r2d2_postgres::PostgresConnectionManager;
 use rust_decimal::prelude::*;
@@ -35,7 +35,7 @@ fn get_expense_categories(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) ->
     Ok(())
 }
 
-pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
+pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
@@ -49,23 +49,15 @@ pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result
                   ON expense.account_id = account.account_id
                   ORDER BY date";
 
-    for row in client.query(q, &[])? {
-        let id: i32 = row.get(0);
-        let date: NaiveDate = row.get(1);
-        let account: &str = row.get(2);
-        let amount: Decimal = row.get(3);
-        let category: &str = row.get(4);
-        let notes: &str = row.get(5);
-        println!(
-            "{} {} {} {} {} {}",
-            id, date, account, amount, category, notes
-        );
-    }
+    let rows = client.query(q, &[])?;
 
-    Ok(())
+    Ok(rows)
 }
 
-pub fn get_expense_num(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, count: i64) -> Result<(), Error> {
+pub fn get_expense_num(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    count: i64,
+) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
@@ -82,32 +74,26 @@ pub fn get_expense_num(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, count
 
     let rows = client.query(q, &[&count])?;
 
-    for row in rows {
-        let id: i32 = row.get(0);
-        let date: NaiveDate = row.get(1);
-        let account: &str = row.get(2);
-        let amount: Decimal = row.get(3);
-        let category: &str = row.get(4);
-        let notes: &str = row.get(5);
-        println!(
-            "{} {} {} {} {} {}",
-            id, date, account, amount, category, notes
-        );
-    }
-
-    Ok(())
+    Ok(rows)
 }
 
-pub fn get_subscriptions(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
+pub fn get_subscriptions(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
-    for row in client.query("SELECT subscription_name FROM subscription", &[])? {
-        let name: &str = row.get(0);
-        println!("{}", name);
-    }
+    let rows = client.query(
+        "SELECT subscription.subscription_name,
+                                            expense_category.category_name,
+                                            subscription.subscription_price
+                                     FROM subscription
+                                     JOIN expense_category
+                                     ON subscription.category_id = expense_category.category_id",
+        &[],
+    )?;
 
-    Ok(())
+    Ok(rows)
 }
 
 pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
