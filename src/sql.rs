@@ -1,10 +1,8 @@
-use chrono::{NaiveDate, NaiveTime};
+use chrono::{NaiveDate};
 use postgres::{Error, NoTls, Row};
 use r2d2;
 use r2d2_postgres::PostgresConnectionManager;
 use rust_decimal::prelude::*;
-
-use crate::interface;
 
 pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =

@@ -2,7 +2,7 @@ use chrono::NaiveDate;
 use comfy_table::presets::ASCII_MARKDOWN;
 use comfy_table::*;
 use dialoguer::Input;
-use postgres::{Error, NoTls, Row};
+use postgres::{NoTls, Row};
 use r2d2_postgres::PostgresConnectionManager;
 use rust_decimal::prelude::*;
 
