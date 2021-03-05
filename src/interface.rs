@@ -2,10 +2,12 @@ use chrono::NaiveDate;
 use comfy_table::presets::ASCII_MARKDOWN;
 use comfy_table::*;
 use dialoguer::Input;
-use postgres::Row;
+use postgres::{Error, NoTls, Row};
+use r2d2_postgres::PostgresConnectionManager;
 use rust_decimal::prelude::*;
 
 use crate::datetime;
+use crate::sql;
 
 /// Ask user for input and return entered integer
 pub fn user_input_int(displayed_text: &str) -> i32 {
@@ -105,4 +107,21 @@ pub fn account_rows_to_table(rows: Vec<Row>) -> String {
     }
 
     table.to_string()
+}
+
+
+pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
+    let table_vec:Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
+    let table_string = account_rows_to_table(table_vec);
+    println!("{}", table_string);
+
+    let id = user_input_int("ID of Account to Update");
+
+    let value = user_input_float("New Value");
+    let value_decimal = Decimal::from_f64(value).unwrap();
+
+    let rows_updated = sql::update_account_value(pool, value_decimal, id).expect("Problem Updating");
+    
+    println!("{} rows updated", rows_updated);
+
 }

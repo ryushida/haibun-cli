@@ -122,3 +122,15 @@ pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result
 
     Ok(())
 }
+
+pub fn update_account_value(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, value: Decimal, id: i32) -> Result<u64, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+    
+    let rows_updated = client.execute(
+        "UPDATE account_value SET account_value = $1 WHERE account_id = $2",
+        &[&value, &id],
+    )?;
+
+    Ok(rows_updated)
+}
