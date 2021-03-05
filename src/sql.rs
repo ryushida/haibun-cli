@@ -65,6 +65,39 @@ pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result
     Ok(())
 }
 
+pub fn get_expense_num(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, count: i64) -> Result<(), Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let q = "SELECT expense.expense_id, expense.date,
+                         account.account_name, expense.amount,
+                         expense_category.category_name, expense.note
+                  FROM expense
+                  LEFT JOIN expense_category
+                  ON expense.category_id = expense_category.category_id
+                  LEFT JOIN account
+                  ON expense.account_id = account.account_id
+                  ORDER BY date
+                  DESC LIMIT $1";
+
+    let rows = client.query(q, &[&count])?;
+
+    for row in rows {
+        let id: i32 = row.get(0);
+        let date: NaiveDate = row.get(1);
+        let account: &str = row.get(2);
+        let amount: Decimal = row.get(3);
+        let category: &str = row.get(4);
+        let notes: &str = row.get(5);
+        println!(
+            "{} {} {} {} {} {}",
+            id, date, account, amount, category, notes
+        );
+    }
+
+    Ok(())
+}
+
 pub fn get_subscriptions(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
