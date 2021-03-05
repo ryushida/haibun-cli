@@ -6,17 +6,13 @@ use rust_decimal::prelude::*;
 
 use crate::interface;
 
-pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
+pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
-    for row in client.query("SELECT account_id, account_name FROM account", &[])? {
-        let id: i32 = row.get(0);
-        let name: &str = row.get(1);
-        println!("{} {}", id, name);
-    }
+    let rows = client.query("SELECT account_id, account_name FROM account", &[])?;
 
-    Ok(())
+    Ok(rows)
 }
 
 fn get_expense_categories(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<(), Error> {
@@ -106,7 +102,8 @@ pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result
 
     let date = interface::user_input_date("Enter date");
 
-    get_account_ids(pool.clone())?;
+    let accounts_vec: Vec<Row> = get_account_ids(pool.clone()).unwrap();
+    interface::print_account_rows(accounts_vec);
     let account_id = interface::user_input_int("Enter Number");
 
     let expense_input = interface::user_input_float("Enter Amount");
