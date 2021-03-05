@@ -33,6 +33,10 @@ enum Sub {
     /// Add new
     #[structopt(name = "add")]
     Add(AddOpts),
+
+    /// Configure
+    #[structopt(name = "manage")]
+    Manage(ManageOpts)
 }
 
 #[derive(StructOpt, Debug)]
@@ -44,6 +48,9 @@ struct ViewOpts {
 
 #[derive(StructOpt, Debug)]
 struct AddOpts {}
+
+#[derive(StructOpt, Debug)]
+struct ManageOpts {}
 
 #[derive(Serialize, Deserialize)]
 struct Config {
@@ -142,6 +149,7 @@ fn main() {
                 Sub::Add(opt) => {
                     sql::add_expense(pool.clone());
                 }
+                Sub::Manage(opt) => {}
             }
         } else {
             sql::get_expense(pool.clone());
@@ -155,6 +163,7 @@ fn main() {
                     println!("{}", table_string);
                 }
                 Sub::Add(opt) => {}
+                Sub::Manage(opt) => {}
             }
         } else {
             let table_vec: Vec<Row> = sql::get_subscriptions(pool.clone()).unwrap();
@@ -170,6 +179,9 @@ fn main() {
                     println!("{}", table_string);
                 }
                 Sub::Add(opt) => {}
+                Sub::Manage(opt) => {
+                    interface::update_account_values(pool.clone());
+                }
             }
         } else {
             let table_vec: Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
