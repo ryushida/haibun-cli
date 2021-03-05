@@ -14,15 +14,35 @@ mod interface;
 mod sql;
 
 #[derive(StructOpt)]
-struct Cli {
-    /// view, add
+pub struct Opts{
+    /// expense, subscriptions, accounts
     main: String,
 
-    ///  accounts, expense, subscriptions
-    sub: String,
+    // SUBCOMMAND
+    #[structopt(subcommand)]
+    subcommand: Option<Sub>
+}
 
-    /// Value
-    value: Option<String>,
+#[derive(StructOpt)]
+enum Sub {
+    /// View items
+    #[structopt(name = "view")]
+    View (ViewOpts),
+
+    /// Add new
+    #[structopt(name = "add")]
+    Add (AddOpts),
+}
+
+#[derive(StructOpt, Debug)]
+struct ViewOpts {
+    /// Specify Number of Items to Display
+    #[structopt(short)]
+    number: Option<String>
+}
+
+#[derive(StructOpt, Debug)]
+struct AddOpts {
 }
 
 #[derive(Serialize, Deserialize)]
@@ -98,21 +118,54 @@ fn main() {
     let pool = r2d2::Pool::new(manager).unwrap();
 
     // Command line arguments
-    let args = Cli::from_args();
-    let main = args.main.as_str();
-    let sub = args.sub.as_str();
+    let args = Opts::from_args();
 
-    if main == "view" {
-        if sub == "expense" {
+    if args.main == "expense" {
+        if let Some(subcommand) = args.subcommand {
+            match subcommand {
+                Sub::View(opt) => {
+                    if opt.number.is_none() {
+                        sql::get_expense(pool.clone());
+                    } else {
+                        let count = opt.number.as_deref().unwrap().parse::<i32>().unwrap();
+                        
+                        if count > 0 {
+                            println!("{}", count);
+                            sql::get_expense_num(pool.clone(), i64::from(count));
+                        }
+                    }
+                }
+                Sub::Add(opt) => {
+                    sql::add_expense(pool.clone());
+                }
+            }
+        } else {
             sql::get_expense(pool.clone());
-        } else if sub == "subscriptions" {
-            sql::get_subscriptions(pool.clone());
-        } else if sub == "accounts" {
-            sql::get_account_ids(pool.clone());
         }
-    } else if main == "add" {
-        if sub == "expense" {
-            sql::add_expense(pool.clone());
+    } else if args.main == "subscriptions" {
+        if let Some(subcommand) = args.subcommand {
+            match subcommand {
+                Sub::View(opt) => {
+                    sql::get_subscriptions(pool.clone());
+                }
+                Sub::Add(opt) => {
+                    sql::get_subscriptions(pool.clone());
+                }
+            }
+        } else {
+            sql::get_subscriptions(pool.clone());
+        }
+    } else if args.main == "accounts" {
+        if let Some(subcommand) = args.subcommand {
+            match subcommand {
+                Sub::View(opt) => {
+                    sql::get_account_ids(pool.clone());
+                }
+                Sub::Add(opt) => {
+                }
+            }
+        } else {
+            sql::get_account_ids(pool.clone());
         }
     }
 }
