@@ -86,3 +86,23 @@ pub fn subscription_rows_to_table(rows: Vec<Row>) -> String {
 
     table.to_string()
 }
+
+pub fn account_rows_to_table(rows: Vec<Row>) -> String {
+    let mut table = comfy_table::Table::new();
+    table
+        .load_preset(ASCII_MARKDOWN)
+        .set_content_arrangement(ContentArrangement::Dynamic)
+        .set_header(vec!["id", "Account"]);
+
+    for row in rows {
+        let id: i32 = row.get(0);
+        let account: &str = row.get(1);
+
+        table.add_row(vec![
+            Cell::new(id),
+            Cell::new(account),
+        ]);
+    }
+
+    table.to_string()
+}

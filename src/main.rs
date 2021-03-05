@@ -165,12 +165,16 @@ fn main() {
         if let Some(subcommand) = args.subcommand {
             match subcommand {
                 Sub::View(opt) => {
-                    sql::get_account_ids(pool.clone());
+                    let table_vec: Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
+                    let table_string = interface::account_rows_to_table(table_vec);
+                    println!("{}", table_string);
                 }
                 Sub::Add(opt) => {}
             }
         } else {
-            sql::get_account_ids(pool.clone());
+            let table_vec: Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
+            let table_string = interface::account_rows_to_table(table_vec);
+            println!("{}", table_string);
         }
     }
 }
