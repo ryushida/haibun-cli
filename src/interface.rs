@@ -33,6 +33,7 @@ pub fn expense_rows_to_table(rows: Vec<Row>) -> String {
     let mut table = comfy_table::Table::new();
     table
         .load_preset(ASCII_MARKDOWN)
+        .set_content_arrangement(ContentArrangement::Dynamic)
         .set_header(vec!["id", "Date", "Account", "Amount", "Category", "Notes"]);
 
     for row in rows {
@@ -60,6 +61,7 @@ pub fn subscription_rows_to_table(rows: Vec<Row>) -> String {
     let mut table = comfy_table::Table::new();
     table
         .load_preset(ASCII_MARKDOWN)
+        .set_content_arrangement(ContentArrangement::Dynamic)
         .set_header(vec!["Name", "Category", "Amount"]);
 
     for row in rows {
