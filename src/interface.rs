@@ -95,6 +95,28 @@ pub fn expense_category_rows_to_table(rows: Vec<Row>) -> String {
     table.to_string()
 }
 
+pub fn portfolio_rows_to_table(rows: Vec<Row>) -> String {
+    let mut table = comfy_table::Table::new();
+    table
+        .load_preset(ASCII_MARKDOWN)
+        .set_content_arrangement(ContentArrangement::Dynamic)
+        .set_header(vec!["ID", "Item", "Value"]);
+
+    for row in rows {
+        let id: i32 = row.get(0);
+        let item: &str = row.get(1);
+        let value: Decimal = row.get(2);
+
+        table.add_row(vec![
+            Cell::new(id),
+            Cell::new(item),
+            Cell::new(value),
+        ]);
+    }
+
+    table.to_string()
+}
+
 pub fn subscription_rows_to_table(rows: Vec<Row>) -> String {
     let mut table = comfy_table::Table::new();
     table
