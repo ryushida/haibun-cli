@@ -111,3 +111,34 @@ pub fn update_account_value(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, 
 
     Ok(rows_updated)
 }
+
+pub fn check_portfolio(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: NaiveDate, item: &str, value: &Decimal) -> Result<bool, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();    
+    
+    let rows = client.query_one("SELECT COUNT(*) > 0
+                                 FROM portfolio
+                                 WHERE date = $1 AND item = $2 AND value = $3",
+                                &[&date, &item, &value]);
+    
+    let mut exists = false;
+    for row in rows {
+        exists = row.get(0);
+    }
+
+    Ok(exists)
+
+}
+
+pub fn insert_portfolio(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: NaiveDate, item: &str, value: &Decimal) -> Result<(), Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();    
+
+    client.execute(
+        "INSERT INTO portfolio (portfolio_id, date, item, value)
+               VALUES (DEFAULT, $1, $2, $3)",
+        &[&date, &item, &value],
+    )?;
+
+    Ok(())
+}

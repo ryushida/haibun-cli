@@ -4,12 +4,14 @@ use postgres::Row;
 use r2d2;
 use r2d2_postgres::{postgres::NoTls, PostgresConnectionManager};
 use serde::{Deserialize, Serialize};
+use std::env;
 use std::fs::{create_dir_all, read_to_string, File};
 use std::io::Write;
 use std::path::Path;
 use structopt::StructOpt;
 use toml;
 
+mod csv;
 mod datetime;
 mod interface;
 mod sql;
@@ -47,7 +49,11 @@ struct ViewOpts {
 }
 
 #[derive(StructOpt, Debug)]
-struct AddOpts {}
+struct AddOpts {
+    /// Read CSV
+    #[structopt(short)]
+    file: Option<String>,
+}
 
 #[derive(StructOpt, Debug)]
 struct ManageOpts {}
@@ -55,6 +61,7 @@ struct ManageOpts {}
 #[derive(Serialize, Deserialize)]
 struct Config {
     database: Database,
+    csv: Csv
 }
 
 #[derive(Serialize, Deserialize)]
@@ -66,6 +73,15 @@ struct Database {
     dbpassword: String,
 }
 
+#[derive(Serialize, Deserialize)]
+struct Csv {
+    currency: String,
+    skiprows: usize,
+    stoprows: usize,
+    item_column: usize,
+    value_column: usize
+}
+
 fn main() {
     let mut login: Database = Database {
         ip: "".to_string(),
@@ -73,6 +89,14 @@ fn main() {
         dbname: "".to_string(),
         dbuser: "".to_string(),
         dbpassword: "".to_string(),
+    };
+
+    let mut csv: Csv = Csv {
+        currency: "".to_string(),
+        skiprows: 0,
+        stoprows: 0,
+        item_column: 1,
+        value_column: 2
     };
 
     if let Some(proj_dirs) = ProjectDirs::from("haibun", "haibun", "haibun") {
@@ -89,6 +113,14 @@ fn main() {
                     dbuser: "postgres_user".to_string(),
                     dbpassword: "postgres_password".to_string(),
                 },
+                csv: Csv {
+                    currency: "".to_string(),
+                    skiprows: 0,
+                    stoprows: 0,
+                    item_column: 1,
+                    value_column: 2
+                },
+
             };
 
             let toml = toml::to_string(&config).unwrap();
@@ -112,6 +144,14 @@ fn main() {
                 dbname: config.database.dbname,
                 dbuser: config.database.dbuser,
                 dbpassword: config.database.dbpassword,
+            };
+            
+            csv = Csv {
+                currency: config.csv.currency,
+                skiprows: config.csv.skiprows,
+                stoprows: config.csv.stoprows,
+                item_column: config.csv.item_column,
+                value_column: config.csv.value_column
             };
         }
     }
@@ -187,6 +227,18 @@ fn main() {
             let table_vec: Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
             let table_string = interface::account_rows_to_table(table_vec);
             println!("{}", table_string);
+        }
+    } else if args.main == "portfolio" {
+        if let Some(subcommand) = args.subcommand {
+            match subcommand {
+                Sub::View(opt) => {}
+                Sub::Add(opt) => {
+                    let dir = env::current_dir().unwrap();
+                    let path = dir.join(opt.file.unwrap().replace(".\\", ""));
+                    csv::read_csv(pool.clone(), path.to_str().unwrap(), csv.currency, csv.skiprows, csv.stoprows, csv.item_column, csv.value_column);
+                }
+                Sub::Manage(opt) => {}
+            }
         }
     }
 }
