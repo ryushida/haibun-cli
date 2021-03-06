@@ -75,7 +75,7 @@ fn main() {
         dbpassword: "".to_string(),
     };
 
-    if let Some(proj_dirs) = ProjectDirs::from("haibun", "haibun", "haibuncli") {
+    if let Some(proj_dirs) = ProjectDirs::from("haibun", "haibun", "haibun") {
         let path = proj_dirs.config_dir();
         let config_path = path.join("config.toml");
 
