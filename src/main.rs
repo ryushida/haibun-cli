@@ -18,7 +18,7 @@ mod sql;
 
 #[derive(StructOpt)]
 pub struct Opts {
-    /// expense, subscriptions, accounts
+    /// expense, subscriptions, portfolio, accounts
     main: String,
 
     // SUBCOMMAND
@@ -231,7 +231,13 @@ fn main() {
     } else if args.main == "portfolio" {
         if let Some(subcommand) = args.subcommand {
             match subcommand {
-                Sub::View(opt) => {}
+                Sub::View(opt) => {
+                    let mut table_vec: Vec<Row> = sql::get_portfolio(pool.clone()).unwrap();
+                    let table_vec_sum: Row = sql::get_portfolio_sum(pool.clone()).unwrap();
+                    table_vec.push(table_vec_sum);
+                    let table_string = interface::portfolio_rows_to_table(table_vec);
+                    println!("{}", table_string);
+                }
                 Sub::Add(opt) => {
                     let dir = env::current_dir().unwrap();
                     let path = dir.join(opt.file.unwrap().replace(".\\", ""));

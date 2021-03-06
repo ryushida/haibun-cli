@@ -112,6 +112,37 @@ pub fn update_account_value(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, 
     Ok(rows_updated)
 }
 
+pub fn get_portfolio_sum(
+pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Row, Error> {
+let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+    pool.get().unwrap();
+
+let rows = client.query_one(
+    "SELECT  0 as id, 'Total' as item, SUM(value)
+    FROM portfolio",
+    &[],
+)?;
+
+Ok(rows)
+}
+
+pub fn get_portfolio(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Vec<Row>, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let rows = client.query(
+        "SELECT portfolio_id, item, value
+         FROM portfolio
+         ORDER BY value DESC",
+        &[],
+    )?;
+
+    Ok(rows)
+}
+
 pub fn check_portfolio(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: NaiveDate, item: &str, value: &Decimal) -> Result<bool, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();    
