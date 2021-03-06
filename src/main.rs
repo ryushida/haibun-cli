@@ -214,8 +214,8 @@ fn main() {
         if let Some(subcommand) = args.subcommand {
             match subcommand {
                 Sub::View(opt) => {
-                    let table_vec: Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
-                    let table_string = interface::account_rows_to_table(table_vec);
+                    let table_vec: Vec<Row> = sql::get_account_values(pool.clone()).unwrap();
+                    let table_string = interface::account_values_to_table(table_vec);
                     println!("{}", table_string);
                 }
                 Sub::Add(opt) => {}
@@ -224,8 +224,8 @@ fn main() {
                 }
             }
         } else {
-            let table_vec: Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
-            let table_string = interface::account_rows_to_table(table_vec);
+            let table_vec: Vec<Row> = sql::get_account_values(pool.clone()).unwrap();
+            let table_string = interface::account_values_to_table(table_vec);
             println!("{}", table_string);
         }
     } else if args.main == "portfolio" {
