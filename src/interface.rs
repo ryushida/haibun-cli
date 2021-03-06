@@ -1,7 +1,7 @@
 use chrono::NaiveDate;
 use comfy_table::presets::ASCII_MARKDOWN;
 use comfy_table::*;
-use dialoguer::Input;
+use dialoguer::{Confirm, Input};
 use postgres::{NoTls, Row};
 use r2d2_postgres::PostgresConnectionManager;
 use rust_decimal::prelude::*;
@@ -29,6 +29,14 @@ pub fn user_input_date(displayed_text: &str) -> NaiveDate {
     let value: String = Input::new().with_prompt(displayed_text).interact().unwrap();
     let date = datetime::parse_date(&value).unwrap();
     date
+}
+
+pub fn user_input_confirm(displayed_text: &str) -> bool {
+    let mut proceed = false;
+    if Confirm::new().with_prompt(displayed_text).interact().expect("msg") {
+        proceed = true;
+    };
+    proceed
 }
 
 pub fn print_account_rows(rows: Vec<Row>) {
