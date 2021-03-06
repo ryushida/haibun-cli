@@ -18,7 +18,7 @@ mod sql;
 
 #[derive(StructOpt)]
 pub struct Opts {
-    /// expense, subscriptions, portfolio, accounts
+    /// expense, subscription, portfolio, account
     main: String,
 
     // SUBCOMMAND

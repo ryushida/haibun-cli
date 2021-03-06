@@ -17,6 +17,7 @@ pub fn read_csv(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, path: &str, 
 
     println!("{}", path);
 
+    // Get date of csv
     let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
     let date_string = re.captures(path).unwrap()[0].to_string();
     let mut date = datetime::parse_date(&date_string).unwrap();
@@ -24,20 +25,18 @@ pub fn read_csv(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, path: &str, 
     if !interface::user_input_confirm(&confirm_string) {
         date = interface::user_input_date("Which date is this from?");
     }
+
     let file = File::open(path)?;
     let reader = BufReader::new(file);
-
     let mut csv_rows: Vec<String> = Vec::new();
-
     for line in reader.lines() {
         csv_rows.push(line.unwrap());
     }
 
     let rows = remove_first_last_rows(csv_rows, skiprows, stoprows);
-
     let data = rows.join("\n");
-
     let mut rdr = Reader::from_reader(data.as_bytes());
+    
     for result in rdr.records() {
         let record = result?;
         let item = &record[item_col-1];
