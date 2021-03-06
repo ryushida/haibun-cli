@@ -4,4 +4,4 @@ Command Line Application for managing your finances. Built with Rust and Postgre
 
 - Add and view expenses/subscriptions
 - Manage accounts
-
+- Read CSV of portfolio
