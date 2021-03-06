@@ -13,6 +13,19 @@ pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Re
     Ok(rows)
 }
 
+pub fn get_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let rows = client.query("SELECT account.account_id, account_name, coalesce(account_value.account_value, 0)
+                                     FROM account
+                                     LEFT JOIN account_value
+                                     ON account.account_id = account_value.account_id
+                                     ORDER BY account_id", &[])?;
+
+    Ok(rows)
+}
+
 pub fn get_expense_categories(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
