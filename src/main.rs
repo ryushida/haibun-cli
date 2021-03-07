@@ -194,7 +194,7 @@ fn main() {
                 }
             }
         } else {
-            sql::get_expense(pool.clone());
+            unimplemented!();
         }
     } else if args.main == "subscription" {
         if let Some(subcommand) = args.subcommand {
@@ -232,9 +232,7 @@ fn main() {
                 }
             }
         } else {
-            let table_vec: Vec<Row> = sql::get_account_values(pool.clone()).unwrap();
-            let table_string = interface::account_values_to_table(table_vec);
-            println!("{}", table_string);
+            unimplemented!();
         }
     } else if args.main == "portfolio" {
         if let Some(subcommand) = args.subcommand {
@@ -255,6 +253,8 @@ fn main() {
                     unimplemented!();
                 }
             }
+        } else {
+            unimplemented!();
         }
     }
 }
