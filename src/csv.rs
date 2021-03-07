@@ -66,3 +66,27 @@ fn remove_first_last_rows(rows_vec: Vec<String>, skiprows: usize, stoprows: usiz
     r
 }
 
+#[cfg(test)]
+mod tests {
+    use super::*;
+    #[test]
+    fn test_remove_rows() {
+        let v: Vec<String> = vec!["a".to_string(), "b".to_string(),
+                                  "c".to_string(), "d".to_string(),
+                                  "e".to_string(), "f".to_string()];
+
+        let v2: Vec<String> = vec!["b".to_string(), "c".to_string(),
+                                   "d".to_string()];
+
+        let v3: Vec<String> = vec!["a".to_string(), "b".to_string(),
+                                   "c".to_string(), "d".to_string()];
+
+        let v4: Vec<String> = vec!["c".to_string(), "d".to_string(),
+                                  "e".to_string(), "f".to_string()];
+
+        assert_eq!(v, remove_first_last_rows(v.clone(), 0, 0));
+        assert_eq!(v2, remove_first_last_rows(v.clone(), 1, 2));
+        assert_eq!(v3, remove_first_last_rows(v.clone(), 0, 2));
+        assert_eq!(v4, remove_first_last_rows(v.clone(), 2, 0));
+    }
+}
