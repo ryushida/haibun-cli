@@ -39,14 +39,6 @@ pub fn user_input_confirm(displayed_text: &str) -> bool {
     proceed
 }
 
-pub fn print_account_rows(rows: Vec<Row>) {
-    for row in rows {
-        let id: i32 = row.get(0);
-        let name: &str = row.get(1);
-        println!("{} {}", id, name);
-    }
-}
-
 pub fn expense_rows_to_table(rows: Vec<Row>) -> String {
     let mut table = comfy_table::Table::new();
     table
