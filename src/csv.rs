@@ -41,9 +41,9 @@ pub fn read_csv(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, path: &str, 
         let record = result?;
         let item = &record[item_col-1];
         let value = &record[value_col-1].replace(&currency, "").parse::<Decimal>().unwrap();
-        let exists = sql::check_portfolio(pool.clone(), date, item, value).unwrap();
+        let exists = sql::check_portfolio(pool.clone(), date, item, value)?;
         if !exists {
-            sql::insert_portfolio(pool.clone(), date, item, value);
+            sql::insert_portfolio(pool.clone(), date, item, value)?;
             println!("{} {} {}", date, item, value);
             println!("Added");
         } else {
