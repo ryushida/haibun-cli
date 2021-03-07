@@ -189,7 +189,9 @@ fn main() {
                 Sub::Add(opt) => {
                     interface::add_expense_prompt(pool.clone());
                 }
-                Sub::Manage(opt) => {}
+                Sub::Manage(opt) => {
+                    unimplemented!();
+                }
             }
         } else {
             sql::get_expense(pool.clone());
@@ -202,8 +204,12 @@ fn main() {
                     let table_string = interface::subscription_rows_to_table(table_vec);
                     println!("{}", table_string);
                 }
-                Sub::Add(opt) => {}
-                Sub::Manage(opt) => {}
+                Sub::Add(opt) => {
+                    unimplemented!();
+                }
+                Sub::Manage(opt) => {
+                    unimplemented!();
+                }
             }
         } else {
             let table_vec: Vec<Row> = sql::get_subscriptions(pool.clone()).unwrap();
@@ -218,7 +224,9 @@ fn main() {
                     let table_string = interface::account_values_to_table(table_vec);
                     println!("{}", table_string);
                 }
-                Sub::Add(opt) => {}
+                Sub::Add(opt) => {
+                    unimplemented!();
+                }
                 Sub::Manage(opt) => {
                     interface::update_account_values(pool.clone());
                 }
@@ -243,7 +251,9 @@ fn main() {
                     let path = dir.join(opt.file.unwrap().replace(".\\", ""));
                     csv::read_csv(pool.clone(), path.to_str().unwrap(), csv.currency, csv.skiprows, csv.stoprows, csv.item_column, csv.value_column);
                 }
-                Sub::Manage(opt) => {}
+                Sub::Manage(opt) => {
+                    unimplemented!();
+                }
             }
         }
     }
