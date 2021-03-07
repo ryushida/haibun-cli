@@ -13,9 +13,9 @@ Command Line Application for managing your finances. Built with Rust and Postgre
 2. Create database and tables
 
 ```shell
-psql postgresuser
-CREATE DATABASE database_name;
-\c databasename postgres_user
+psql postgres_user
+CREATE DATABASE haibun;
+\c haibun postgres_user
 \i init.sql
 
 \l
