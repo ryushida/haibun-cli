@@ -18,10 +18,10 @@ pub fn get_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) ->
         pool.get().unwrap();
 
     let rows = client.query("SELECT account.account_id, account_name, coalesce(account_value.account_value, 0)
-                                     FROM account
-                                     LEFT JOIN account_value
-                                     ON account.account_id = account_value.account_id
-                                     ORDER BY account_id", &[])?;
+                             FROM account
+                             LEFT JOIN account_value
+                             ON account.account_id = account_value.account_id
+                             ORDER BY account_id", &[])?;
 
     Ok(rows)
 }
@@ -40,14 +40,14 @@ pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result
         pool.get().unwrap();
 
     let q = "SELECT expense.expense_id, expense.date,
-                         account.account_name, to_char(expense.amount, '999999999.00'),
-                         expense_category.category_name, expense.note
-                  FROM expense
-                  LEFT JOIN expense_category
-                  ON expense.category_id = expense_category.category_id
-                  LEFT JOIN account
-                  ON expense.account_id = account.account_id
-                  ORDER BY date";
+             account.account_name, to_char(expense.amount, '999999999.00'),
+             expense_category.category_name, expense.note
+             FROM expense
+             LEFT JOIN expense_category
+             ON expense.category_id = expense_category.category_id
+             LEFT JOIN account
+             ON expense.account_id = account.account_id
+             ORDER BY date";
 
     let rows = client.query(q, &[])?;
 
@@ -63,18 +63,19 @@ pub fn get_expense_num(
 
     // Get last n expense
     let q = "WITH t AS (
-                    SELECT expense.expense_id, expense.date,
-                            account.account_name, to_char(expense.amount, '999999999.00'),
-                            expense_category.category_name, expense.note
-                    FROM expense
-                    LEFT JOIN expense_category
-                    ON expense.category_id = expense_category.category_id
-                    LEFT JOIN account
-                    ON expense.account_id = account.account_id
-                    ORDER BY date
-                    DESC LIMIT $1
-                )
-                SELECT * FROM t ORDER BY date ASC;";
+                      SELECT expense.expense_id, expense.date,
+                             account.account_name, to_char(expense.amount, '999999999.00'),
+                             expense_category.category_name, expense.note
+                
+                      FROM expense
+                      LEFT JOIN expense_category
+                      ON expense.category_id = expense_category.category_id
+                      LEFT JOIN account
+                      ON expense.account_id = account.account_id
+                      ORDER BY date
+                      DESC LIMIT $1
+             )
+             SELECT * FROM t ORDER BY date ASC;";
 
     let rows = client.query(q, &[&n])?;
 
@@ -88,12 +89,11 @@ pub fn get_subscriptions(
         pool.get().unwrap();
 
     let rows = client.query(
-        "SELECT subscription.subscription_name,
-                                            expense_category.category_name,
-                                            subscription.subscription_price
-                                     FROM subscription
-                                     JOIN expense_category
-                                     ON subscription.category_id = expense_category.category_id",
+        "SELECT subscription.subscription_name, expense_category.category_name,
+                subscription.subscription_price
+         FROM subscription
+         JOIN expense_category
+         ON subscription.category_id = expense_category.category_id",
         &[],
     )?;
 
@@ -106,7 +106,7 @@ pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: Nai
 
     client.execute(
         "INSERT INTO expense (expense_id, date, account_id, amount, category_id, note)
-                   VALUES (DEFAULT, $1, $2, $3, $4, $5)",
+        VALUES (DEFAULT, $1, $2, $3, $4, $5)",
         &[&date, &account_id, &expense_value, &category_id, &note],
     )?;
 
@@ -133,7 +133,7 @@ let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<
 
 let rows = client.query_one(
     "SELECT  0 as id, 'Total' as item, SUM(value)
-    FROM portfolio",
+     FROM portfolio",
     &[],
 )?;
 
