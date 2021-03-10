@@ -92,17 +92,19 @@ pub fn portfolio_rows_to_table(rows: Vec<Row>) -> String {
     table
         .load_preset(ASCII_MARKDOWN)
         .set_content_arrangement(ContentArrangement::Dynamic)
-        .set_header(vec!["ID", "Item", "Value"]);
+        .set_header(vec!["ID", "Item", "Value", "Proportion"]);
 
     for row in rows {
         let id: i32 = row.get(0);
         let item: &str = row.get(1);
         let value: Decimal = row.get(2);
+        let proportion: &str = row.get(3);
 
         table.add_row(vec![
             Cell::new(id),
             Cell::new(item),
             Cell::new(value),
+            Cell::new(proportion)
         ]);
     }
 
