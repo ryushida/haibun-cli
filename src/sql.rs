@@ -149,6 +149,7 @@ pub fn get_portfolio(
     let rows = client.query(
         "SELECT portfolio_id, item, value
          FROM portfolio
+         WHERE date = (select max (date) from  portfolio)
          ORDER BY value DESC",
         &[],
     )?;
