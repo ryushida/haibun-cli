@@ -133,7 +133,8 @@ let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<
 
 let rows = client.query_one(
     "SELECT  0 as id, 'Total' as item, SUM(value), '' as proportion
-     FROM portfolio",
+     FROM portfolio
+     WHERE date = (select max (date) from  portfolio)",
     &[],
 )?;
 
