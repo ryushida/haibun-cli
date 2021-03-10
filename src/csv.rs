@@ -40,12 +40,16 @@ pub fn read_csv(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, path: &str, 
     for result in rdr.records() {
         let record = result?;
         let item = &record[item_col-1];
-        let value = &record[value_col-1].replace(&currency, "").parse::<Decimal>().unwrap();
-        let exists = sql::check_portfolio(pool.clone(), date, item, value)?;
-        if !exists {
-            sql::insert_portfolio(pool.clone(), date, item, value)?;
+        let value_input = &record[value_col-1].replace(&currency, "").replace(",", "");
+        let value = Decimal::from_str(value_input).unwrap();
+        let exists = sql::check_portfolio(pool.clone(), date, item, &value).expect("Problem checking");
+        if !exists && value_input != "0.00"  {
+            sql::insert_portfolio(pool.clone(), date, item, &value).expect("Problem inserting");
             println!("{} {} {}", date, item, value);
             println!("Added");
+        } else if !exists && value_input == "0.00" {
+            println!("{} {} {}", date, item, value);
+            println!("Skipping 0");
         } else {
             println!("Already Exists");
         }
