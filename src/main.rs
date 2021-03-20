@@ -247,7 +247,7 @@ fn main() {
                 Sub::Add(opt) => {
                     let dir = env::current_dir().unwrap();
                     let path = dir.join(opt.file.unwrap().replace(".\\", ""));
-                    csv::read_csv(pool.clone(), path.to_str().unwrap(), csv.currency, csv.skiprows, csv.stoprows, csv.item_column, csv.value_column);
+                    csv::read_csv(pool.clone(), path.to_str().unwrap(), csv.currency, csv.skiprows, csv.stoprows, csv.item_column, csv.value_column).expect("Could not add from csv");
                 }
                 Sub::Manage(_opt) => {
                     unimplemented!();

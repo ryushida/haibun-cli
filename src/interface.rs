@@ -194,7 +194,7 @@ pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
 
     let note = user_input_text("Note");
 
-    sql::add_expense(pool.clone(), date, account_id, expense_value, category_id, note);
+    sql::add_expense(pool.clone(), date, account_id, expense_value, category_id, note).expect("Could not add");
 }
 
 
