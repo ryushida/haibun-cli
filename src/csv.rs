@@ -1,4 +1,5 @@
 
+use chrono::NaiveDate;
 use csv::Reader;
 use postgres::{NoTls};
 use r2d2_postgres::PostgresConnectionManager;
@@ -17,10 +18,7 @@ pub fn read_csv(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, path: &str, 
 
     println!("{}", path);
 
-    // Get date of csv
-    let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
-    let date_string = re.captures(path).unwrap()[0].to_string();
-    let mut date = datetime::parse_date(&date_string).unwrap();
+    let mut date = date_from_filename(path);
     let confirm_string = [&date.to_string(), " correct?"].join("");
     if !interface::user_input_confirm(&confirm_string) {
         date = interface::user_input_date("Which date is this from?");
@@ -56,6 +54,14 @@ pub fn read_csv(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, path: &str, 
     }
 
     Ok(())
+}
+
+fn date_from_filename(path: &str) -> NaiveDate {
+    // Get date of csv
+    let re = Regex::new(r"(\d{4})-(\d{2})-(\d{2})").unwrap();
+    let date_string = re.captures(path).unwrap()[0].to_string();
+    let date = datetime::parse_date(&date_string).unwrap();
+    date
 }
 
 fn remove_first_last_rows(rows_vec: Vec<String>, skiprows: usize, stoprows: usize) -> Vec<String> {
