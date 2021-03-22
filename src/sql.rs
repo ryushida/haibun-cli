@@ -1,10 +1,12 @@
-use chrono::{NaiveDate};
+use chrono::NaiveDate;
 use postgres::{Error, NoTls, Row};
 use r2d2;
 use r2d2_postgres::PostgresConnectionManager;
 use rust_decimal::prelude::*;
 
-pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
+pub fn get_account_ids(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
@@ -13,24 +15,34 @@ pub fn get_account_ids(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Re
     Ok(rows)
 }
 
-pub fn get_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
+pub fn get_account_values(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
-    let rows = client.query("SELECT account.account_id, account_name, coalesce(account_value.account_value, 0)
+    let rows = client.query(
+        "SELECT account.account_id, account_name, coalesce(account_value.account_value, 0)
                              FROM account
                              LEFT JOIN account_value
                              ON account.account_id = account_value.account_id
-                             ORDER BY account_id", &[])?;
+                             ORDER BY account_id",
+        &[],
+    )?;
 
     Ok(rows)
 }
 
-pub fn get_expense_categories(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
+pub fn get_expense_categories(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 
-    let rows = client.query("SELECT category_id, category_name FROM expense_category", &[])?;
+    let rows = client.query(
+        "SELECT category_id, category_name FROM expense_category",
+        &[],
+    )?;
 
     Ok(rows)
 }
@@ -100,9 +112,16 @@ pub fn get_subscriptions(
     Ok(rows)
 }
 
-pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: NaiveDate, account_id: i32, expense_value: Decimal, category_id: i32, note: String) -> Result<(), Error> {
+pub fn add_expense(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    date: NaiveDate,
+    account_id: i32,
+    expense_value: Decimal,
+    category_id: i32,
+    note: String,
+) -> Result<(), Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
-        pool.get().unwrap();    
+        pool.get().unwrap();
 
     client.execute(
         "INSERT INTO expense (expense_id, date, account_id, amount, category_id, note)
@@ -113,10 +132,14 @@ pub fn add_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: Nai
     Ok(())
 }
 
-pub fn update_account_value(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, value: Decimal, id: i32) -> Result<u64, Error> {
+pub fn update_account_value(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    value: Decimal,
+    id: i32,
+) -> Result<u64, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
-    
+
     let rows_updated = client.execute(
         "UPDATE account_value SET account_value = $1 WHERE account_id = $2",
         &[&value, &id],
@@ -125,20 +148,18 @@ pub fn update_account_value(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, 
     Ok(rows_updated)
 }
 
-pub fn get_portfolio_sum(
-pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
-) -> Result<Row, Error> {
-let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
-    pool.get().unwrap();
+pub fn get_portfolio_sum(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Row, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
 
-let rows = client.query_one(
-    "SELECT  0 as id, 'Total' as item, SUM(value), '' as proportion
+    let rows = client.query_one(
+        "SELECT  0 as id, 'Total' as item, SUM(value), '' as proportion
      FROM portfolio
      WHERE date = (select max (date) from  portfolio)",
-    &[],
-)?;
+        &[],
+    )?;
 
-Ok(rows)
+    Ok(rows)
 }
 
 pub fn get_portfolio(
@@ -158,27 +179,38 @@ pub fn get_portfolio(
     Ok(rows)
 }
 
-pub fn check_portfolio(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: NaiveDate, item: &str, value: &Decimal) -> Result<bool, Error> {
+pub fn check_portfolio(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    date: NaiveDate,
+    item: &str,
+    value: &Decimal,
+) -> Result<bool, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
-        pool.get().unwrap();    
-    
-    let rows = client.query_one("SELECT COUNT(*) > 0
+        pool.get().unwrap();
+
+    let rows = client.query_one(
+        "SELECT COUNT(*) > 0
                                  FROM portfolio
                                  WHERE date = $1 AND item = $2 AND value = $3",
-                                &[&date, &item, &value]);
-    
+        &[&date, &item, &value],
+    );
+
     let mut exists = false;
     for row in rows {
         exists = row.get(0);
     }
 
     Ok(exists)
-
 }
 
-pub fn insert_portfolio(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>, date: NaiveDate, item: &str, value: &Decimal) -> Result<(), Error> {
+pub fn insert_portfolio(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    date: NaiveDate,
+    item: &str,
+    value: &Decimal,
+) -> Result<(), Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
-        pool.get().unwrap();    
+        pool.get().unwrap();
 
     client.execute(
         "INSERT INTO portfolio (portfolio_id, date, item, value)

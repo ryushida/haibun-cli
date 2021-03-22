@@ -33,7 +33,11 @@ pub fn user_input_date(displayed_text: &str) -> NaiveDate {
 
 pub fn user_input_confirm(displayed_text: &str) -> bool {
     let mut proceed = false;
-    if Confirm::new().with_prompt(displayed_text).interact().expect("msg") {
+    if Confirm::new()
+        .with_prompt(displayed_text)
+        .interact()
+        .expect("msg")
+    {
         proceed = true;
     };
     proceed
@@ -78,10 +82,7 @@ pub fn expense_category_rows_to_table(rows: Vec<Row>) -> String {
         let id: i32 = row.get(0);
         let category: String = row.get(1);
 
-        table.add_row(vec![
-            Cell::new(id),
-            Cell::new(category),
-        ]);
+        table.add_row(vec![Cell::new(id), Cell::new(category)]);
     }
 
     table.to_string()
@@ -104,7 +105,7 @@ pub fn portfolio_rows_to_table(rows: Vec<Row>) -> String {
             Cell::new(id),
             Cell::new(item),
             Cell::new(value),
-            Cell::new(proportion)
+            Cell::new(proportion),
         ]);
     }
 
@@ -144,10 +145,7 @@ pub fn account_rows_to_table(rows: Vec<Row>) -> String {
         let id: i32 = row.get(0);
         let account: &str = row.get(1);
 
-        table.add_row(vec![
-            Cell::new(id),
-            Cell::new(account),
-        ]);
+        table.add_row(vec![Cell::new(id), Cell::new(account)]);
     }
 
     table.to_string()
@@ -165,11 +163,7 @@ pub fn account_values_to_table(rows: Vec<Row>) -> String {
         let account: &str = row.get(1);
         let value: Decimal = row.get(2);
 
-        table.add_row(vec![
-            Cell::new(id),
-            Cell::new(account),
-            Cell::new(value)
-        ]);
+        table.add_row(vec![Cell::new(id), Cell::new(account), Cell::new(value)]);
     }
 
     table.to_string()
@@ -178,10 +172,10 @@ pub fn account_values_to_table(rows: Vec<Row>) -> String {
 pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
     let date = user_input_date("Enter date");
 
-    let table_vec:Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
+    let table_vec: Vec<Row> = sql::get_account_ids(pool.clone()).unwrap();
     let table_string = account_rows_to_table(table_vec);
     println!("{}", table_string);
-    
+
     let account_id = user_input_int("Enter ID");
 
     let expense_input = user_input_float("Enter Amount");
@@ -194,9 +188,16 @@ pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
 
     let note = user_input_text("Note");
 
-    sql::add_expense(pool.clone(), date, account_id, expense_value, category_id, note).expect("Could not add");
+    sql::add_expense(
+        pool.clone(),
+        date,
+        account_id,
+        expense_value,
+        category_id,
+        note,
+    )
+    .expect("Could not add");
 }
-
 
 pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
     let table_vec: Vec<Row> = sql::get_account_values(pool.clone()).unwrap();
@@ -208,8 +209,9 @@ pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>)
     let value = user_input_float("New Value");
     let value_decimal = Decimal::from_f64(value).unwrap();
 
-    let rows_updated = sql::update_account_value(pool.clone(), value_decimal, id).expect("Problem Updating");
-    
+    let rows_updated =
+        sql::update_account_value(pool.clone(), value_decimal, id).expect("Problem Updating");
+
     println!("{} rows updated", rows_updated);
 
     let table_vec: Vec<Row> = sql::get_account_values(pool.clone()).unwrap();

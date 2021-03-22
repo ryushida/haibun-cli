@@ -38,7 +38,7 @@ enum Sub {
 
     /// Configure
     #[structopt(name = "manage")]
-    Manage(ManageOpts)
+    Manage(ManageOpts),
 }
 
 #[derive(StructOpt, Debug)]
@@ -61,7 +61,7 @@ struct ManageOpts {}
 #[derive(Serialize, Deserialize)]
 struct Config {
     database: Database,
-    csv: Csv
+    csv: Csv,
 }
 
 #[derive(Serialize, Deserialize)]
@@ -79,7 +79,7 @@ struct Csv {
     skiprows: usize,
     stoprows: usize,
     item_column: usize,
-    value_column: usize
+    value_column: usize,
 }
 
 fn main() {
@@ -96,7 +96,7 @@ fn main() {
         skiprows: 0,
         stoprows: 0,
         item_column: 1,
-        value_column: 2
+        value_column: 2,
     };
 
     if let Some(proj_dirs) = ProjectDirs::from("haibun", "haibun", "haibun") {
@@ -118,9 +118,8 @@ fn main() {
                     skiprows: 0,
                     stoprows: 0,
                     item_column: 1,
-                    value_column: 2
+                    value_column: 2,
                 },
-
             };
 
             let toml = toml::to_string(&config).unwrap();
@@ -145,13 +144,13 @@ fn main() {
                 dbuser: config.database.dbuser,
                 dbpassword: config.database.dbpassword,
             };
-            
+
             csv = Csv {
                 currency: config.csv.currency,
                 skiprows: config.csv.skiprows,
                 stoprows: config.csv.stoprows,
                 item_column: config.csv.item_column,
-                value_column: config.csv.value_column
+                value_column: config.csv.value_column,
             };
         }
     }
@@ -247,7 +246,16 @@ fn main() {
                 Sub::Add(opt) => {
                     let dir = env::current_dir().unwrap();
                     let path = dir.join(opt.file.unwrap().replace(".\\", ""));
-                    csv::read_csv(pool.clone(), path.to_str().unwrap(), csv.currency, csv.skiprows, csv.stoprows, csv.item_column, csv.value_column).expect("Could not add from csv");
+                    csv::read_csv(
+                        pool.clone(),
+                        path.to_str().unwrap(),
+                        csv.currency,
+                        csv.skiprows,
+                        csv.stoprows,
+                        csv.item_column,
+                        csv.value_column,
+                    )
+                    .expect("Could not add from csv");
                 }
                 Sub::Manage(_opt) => {
                     unimplemented!();
