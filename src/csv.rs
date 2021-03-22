@@ -99,4 +99,16 @@ mod tests {
         assert_eq!(v3, remove_first_last_rows(v.clone(), 0, 2));
         assert_eq!(v4, remove_first_last_rows(v.clone(), 2, 0));
     }
+
+    #[test]
+    fn test_date_from_filename() {
+        let d = NaiveDate::from_ymd(2015, 3, 14);
+        let file = "2015-03-14.csv";
+        let file2 = "Data_2015-03-14.csv";
+        let file3 = "Data_2015-03-14_List.csv";
+        
+        assert_eq!(d, date_from_filename(file));
+        assert_eq!(d, date_from_filename(file2));
+        assert_eq!(d, date_from_filename(file3));
+    }
 }
