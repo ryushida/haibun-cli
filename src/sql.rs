@@ -132,6 +132,24 @@ pub fn add_expense(
     Ok(())
 }
 
+pub fn add_subscription(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    subscription_name: String,
+    category_id: i32,
+    expense_value: Decimal,
+) -> Result<(), Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    client.execute(
+        "INSERT INTO subscription (subscription_id, subscription_name, category_id, subscription_price)
+        VALUES (DEFAULT, $1, $2, $3)",
+        &[&subscription_name, &category_id, &expense_value],
+    )?;
+
+    Ok(())
+}
+
 pub fn update_account_value(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
     value: Decimal,

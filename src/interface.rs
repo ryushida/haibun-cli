@@ -169,6 +169,12 @@ pub fn account_values_to_table(rows: Vec<Row>) -> String {
     table.to_string()
 }
 
+fn expense_category_table(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> String {
+    let expense_vec: Vec<Row> = sql::get_expense_categories(pool.clone()).unwrap();
+    let expense_table_string = expense_category_rows_to_table(expense_vec);
+    expense_table_string
+}
+
 pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
     let date = user_input_date("Enter date");
 
@@ -181,9 +187,7 @@ pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
     let expense_input = user_input_float("Enter Amount");
     let expense_value: Decimal = Decimal::from_str(&expense_input.to_string()).unwrap();
 
-    let expense_vec: Vec<Row> = sql::get_expense_categories(pool.clone()).unwrap();
-    let expense_table_string = expense_category_rows_to_table(expense_vec);
-    println!("{}", expense_table_string);
+    println!("{}", expense_category_table(pool.clone()));
     let category_id = user_input_int("Enter number");
 
     let note = user_input_text("Note");
@@ -197,6 +201,18 @@ pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
         note,
     )
     .expect("Could not add");
+}
+
+pub fn add_subscription_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
+    let subscription_name = user_input_text("Subscription Name");
+
+    println!("{}", expense_category_table(pool.clone()));
+    let category_id = user_input_int("Enter number");
+
+    let price_input = user_input_float("Price");
+    let subscription_price: Decimal = Decimal::from_str(&price_input.to_string()).unwrap();
+
+    sql::add_subscription(pool.clone(), subscription_name, category_id, subscription_price).expect("Could not add");
 }
 
 pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
