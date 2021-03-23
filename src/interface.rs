@@ -194,10 +194,10 @@ pub fn add_expense_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
 
     sql::add_expense(
         pool.clone(),
-        date,
-        account_id,
-        expense_value,
-        category_id,
+        &date,
+        &account_id,
+        &expense_value,
+        &category_id,
         note,
     )
     .expect("Could not add");
@@ -226,7 +226,7 @@ pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>)
     let value_decimal = Decimal::from_f64(value).unwrap();
 
     let rows_updated =
-        sql::update_account_value(pool.clone(), value_decimal, id).expect("Problem Updating");
+        sql::update_account_value(pool.clone(), &value_decimal, &id).expect("Problem Updating");
 
     println!("{} rows updated", rows_updated);
 

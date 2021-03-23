@@ -179,7 +179,7 @@ fn main() {
 
                         if count > 0 {
                             let table_vec: Vec<Row> =
-                                sql::get_expense_num(pool.clone(), i64::from(count)).unwrap();
+                                sql::get_expense_num(pool.clone(), &i64::from(count)).unwrap();
                             let table_string = interface::expense_rows_to_table(table_vec);
                             println!("{}", table_string);
                         }

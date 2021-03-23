@@ -68,7 +68,7 @@ pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result
 
 pub fn get_expense_num(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
-    n: i64,
+    n: &i64,
 ) -> Result<Vec<Row>, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
@@ -114,10 +114,10 @@ pub fn get_subscriptions(
 
 pub fn add_expense(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
-    date: NaiveDate,
-    account_id: i32,
-    expense_value: Decimal,
-    category_id: i32,
+    date: &NaiveDate,
+    account_id: &i32,
+    expense_value: &Decimal,
+    category_id: &i32,
     note: String,
 ) -> Result<(), Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
@@ -152,8 +152,8 @@ pub fn add_subscription(
 
 pub fn update_account_value(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
-    value: Decimal,
-    id: i32,
+    value: &Decimal,
+    id: &i32,
 ) -> Result<u64, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
@@ -199,7 +199,7 @@ pub fn get_portfolio(
 
 pub fn check_portfolio(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
-    date: NaiveDate,
+    date: &NaiveDate,
     item: &str,
     value: &Decimal,
 ) -> Result<bool, Error> {

@@ -49,7 +49,7 @@ pub fn read_csv(
             .replace(",", "");
         let value = Decimal::from_str(value_input).unwrap();
         let exists =
-            sql::check_portfolio(pool.clone(), date, item, &value).expect("Problem checking");
+            sql::check_portfolio(pool.clone(), &date, &item, &value).expect("Problem checking");
         if !exists && value_input != "0.00" {
             sql::insert_portfolio(pool.clone(), date, item, &value).expect("Problem inserting");
             println!("{} {} {}", date, item, value);
