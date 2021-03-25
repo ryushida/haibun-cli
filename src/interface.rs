@@ -212,7 +212,13 @@ pub fn add_subscription_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>
     let price_input = user_input_float("Price");
     let subscription_price: Decimal = Decimal::from_str(&price_input.to_string()).unwrap();
 
-    sql::add_subscription(pool.clone(), subscription_name, category_id, subscription_price).expect("Could not add");
+    sql::add_subscription(
+        pool.clone(),
+        subscription_name,
+        category_id,
+        subscription_price,
+    )
+    .expect("Could not add");
 }
 
 pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
