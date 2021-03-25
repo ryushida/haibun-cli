@@ -151,7 +151,7 @@ pub fn account_rows_to_table(rows: Vec<Row>) -> String {
     table.to_string()
 }
 
-pub fn account_values_to_table(rows: Vec<Row>) -> String {
+pub fn account_values_to_table(rows: &Vec<Row>) -> String {
     let mut table = comfy_table::Table::new();
     table
         .load_preset(ASCII_MARKDOWN)
@@ -223,7 +223,7 @@ pub fn add_subscription_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>
 
 pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
     let table_vec: Vec<Row> = sql::get_account_values(pool.clone()).unwrap();
-    let table_string = account_values_to_table(table_vec);
+    let table_string = account_values_to_table(&table_vec);
     println!("{}", table_string);
 
     let id = user_input_int("ID of Account to Update");
@@ -237,6 +237,6 @@ pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>)
     println!("{} rows updated", rows_updated);
 
     let table_vec: Vec<Row> = sql::get_account_values(pool.clone()).unwrap();
-    let table_string = account_values_to_table(table_vec);
+    let table_string = account_values_to_table(&table_vec);
     println!("{}", table_string);
 }
