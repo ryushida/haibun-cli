@@ -105,7 +105,8 @@ pub fn get_subscriptions(
                 subscription.subscription_price
          FROM subscription
          JOIN expense_category
-         ON subscription.category_id = expense_category.category_id",
+         ON subscription.category_id = expense_category.category_id
+         ORDER BY subscription.subscription_price DESC",
         &[],
     )?;
 
