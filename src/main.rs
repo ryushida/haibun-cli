@@ -7,7 +7,7 @@ use serde::{Deserialize, Serialize};
 use std::env;
 use std::fs::{create_dir_all, read_to_string, File};
 use std::io::Write;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use structopt::StructOpt;
 use toml;
 
@@ -105,31 +105,7 @@ fn main() {
 
         // If configuration file does not exist
         if !Path::new(&config_path).exists() {
-            let config = Config {
-                database: Database {
-                    ip: "127.0.0.1".to_string(),
-                    port: 5432,
-                    dbname: "database_name".to_string(),
-                    dbuser: "postgres_user".to_string(),
-                    dbpassword: "postgres_password".to_string(),
-                },
-                csv: Csv {
-                    currency: "".to_string(),
-                    skiprows: 0,
-                    stoprows: 0,
-                    item_column: 1,
-                    value_column: 2,
-                },
-            };
-
-            let toml = toml::to_string(&config).unwrap();
-            create_dir_all(&path).expect("Unable to create path");
-            let mut f = File::create(&config_path).expect("Unable to create file");
-            f.write_all(toml.as_bytes()).expect("Unable to write data");
-
-            println!("A configuration file has been created at {:?}", config_path);
-            println!("Please update the file and re-run");
-
+            create_config(&path, &config_path);
             // Quit
         }
         // Read postgres config from file if exist
@@ -265,4 +241,31 @@ fn main() {
             unimplemented!();
         }
     }
+}
+
+fn create_config(path: &Path, config_path: &PathBuf) {
+    let config = Config {
+        database: Database {
+            ip: "127.0.0.1".to_string(),
+            port: 5432,
+            dbname: "database_name".to_string(),
+            dbuser: "postgres_user".to_string(),
+            dbpassword: "postgres_password".to_string(),
+        },
+        csv: Csv {
+            currency: "".to_string(),
+            skiprows: 0,
+            stoprows: 0,
+            item_column: 1,
+            value_column: 2,
+        },
+    };
+
+    let toml = toml::to_string(&config).unwrap();
+    create_dir_all(&path).expect("Unable to create path");
+    let mut f = File::create(&config_path).expect("Unable to create file");
+    f.write_all(toml.as_bytes()).expect("Unable to write data");
+
+    println!("A configuration file has been created at {:?}", config_path);
+    println!("Please update the file and re-run");
 }
