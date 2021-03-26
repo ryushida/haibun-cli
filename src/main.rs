@@ -240,6 +240,8 @@ fn main() {
         } else {
             unimplemented!();
         }
+    } else {
+        println!("Unknown Command `{}`", args.main);
     }
 }
 
