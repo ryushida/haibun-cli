@@ -51,7 +51,7 @@ pub fn read_csv(
         let exists =
             sql::check_portfolio(pool.clone(), &date, &item, &value).expect("Problem checking");
         if !exists && value_input != "0.00" {
-            sql::insert_portfolio(pool.clone(), date, item, &value).expect("Problem inserting");
+            sql::insert_portfolio(pool.clone(), &date, &item, &value).expect("Problem inserting");
             println!("{} {} {}", date, item, value);
             println!("Added");
         } else if !exists && value_input == "0.00" {

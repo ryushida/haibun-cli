@@ -224,7 +224,7 @@ pub fn check_portfolio(
 
 pub fn insert_portfolio(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
-    date: NaiveDate,
+    date: &NaiveDate,
     item: &str,
     value: &Decimal,
 ) -> Result<(), Error> {
