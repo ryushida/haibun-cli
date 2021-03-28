@@ -210,7 +210,9 @@ pub fn get_portfolio_sum(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> 
     Ok(rows)
 }
 
-pub fn get_subscriptions_sum(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Row, Error> {
+pub fn get_subscriptions_sum(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Row, Error> {
     let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
         pool.get().unwrap();
 

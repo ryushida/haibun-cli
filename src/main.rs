@@ -173,8 +173,7 @@ fn main() {
                             .unwrap();
 
                         let table_vec: Vec<Row> =
-                            sql::get_expense_category(pool.clone(), &number, &category)
-                                .unwrap();
+                            sql::get_expense_category(pool.clone(), &number, &category).unwrap();
 
                         let table_string = interface::expense_rows_to_table(table_vec);
                         println!("{}", table_string);
