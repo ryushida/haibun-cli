@@ -130,7 +130,8 @@ pub fn get_subscriptions(
 
     let rows = client.query(
         "SELECT subscription.subscription_name, expense_category.category_name,
-                subscription.subscription_price
+                subscription.subscription_price as yearly,
+                to_char(subscription.subscription_price / 12, '990D99') as monthly
          FROM subscription
          JOIN expense_category
          ON subscription.category_id = expense_category.category_id
@@ -214,8 +215,11 @@ pub fn get_subscriptions_sum(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>)
         pool.get().unwrap();
 
     let rows = client.query_one(
-        "SELECT  'Total' as subscription_name, '' as category_name, SUM(subscription_price), '' as subscription_price
-     FROM subscription",
+        "SELECT  'Total' as subscription_name,
+         '' as category_name,
+         SUM(subscription_price) as yearly,
+         to_char(SUM(subscription_price)/12, '990D99') as monthly
+         FROM subscription",
         &[],
     )?;
 

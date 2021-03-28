@@ -117,17 +117,19 @@ pub fn subscription_rows_to_table(rows: Vec<Row>) -> String {
     table
         .load_preset(ASCII_MARKDOWN)
         .set_content_arrangement(ContentArrangement::Dynamic)
-        .set_header(vec!["Name", "Category", "Amount"]);
+        .set_header(vec!["Name", "Category", "Yearly", "Monthly"]);
 
     for row in rows {
         let name: &str = row.get(0);
         let category: &str = row.get(1);
-        let amount: Decimal = row.get(2);
+        let yearly: Decimal = row.get(2);
+        let monthly: &str = row.get(3);
 
         table.add_row(vec![
             Cell::new(name),
             Cell::new(category),
-            Cell::new(amount),
+            Cell::new(yearly),
+            Cell::new(monthly),
         ]);
     }
 
