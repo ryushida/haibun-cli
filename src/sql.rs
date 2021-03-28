@@ -209,6 +209,19 @@ pub fn get_portfolio_sum(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> 
     Ok(rows)
 }
 
+pub fn get_subscriptions_sum(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Row, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let rows = client.query_one(
+        "SELECT  'Total' as subscription_name, '' as category_name, SUM(subscription_price), '' as subscription_price
+     FROM subscription",
+        &[],
+    )?;
+
+    Ok(rows)
+}
+
 pub fn get_portfolio(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
 ) -> Result<Vec<Row>, Error> {

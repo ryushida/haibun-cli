@@ -194,7 +194,9 @@ fn main() {
         if let Some(subcommand) = args.subcommand {
             match subcommand {
                 Sub::View(_opt) => {
-                    let table_vec: Vec<Row> = sql::get_subscriptions(pool.clone()).unwrap();
+                    let mut table_vec: Vec<Row> = sql::get_subscriptions(pool.clone()).unwrap();
+                    let table_vec_sum: Row = sql::get_subscriptions_sum(pool.clone()).unwrap();
+                    table_vec.push(table_vec_sum);
                     let table_string = interface::subscription_rows_to_table(table_vec);
                     println!("{}", table_string);
                 }
