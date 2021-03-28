@@ -47,25 +47,6 @@ pub fn get_expense_categories(
     Ok(rows)
 }
 
-pub fn get_expense(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> Result<Vec<Row>, Error> {
-    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
-        pool.get().unwrap();
-
-    let q = "SELECT expense.expense_id, expense.date,
-             account.account_name, to_char(expense.amount, '999999999.00'),
-             expense_category.category_name, expense.note
-             FROM expense
-             LEFT JOIN expense_category
-             ON expense.category_id = expense_category.category_id
-             LEFT JOIN account
-             ON expense.account_id = account.account_id
-             ORDER BY date";
-
-    let rows = client.query(q, &[])?;
-
-    Ok(rows)
-}
-
 pub fn get_expense_num(
     pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
     n: &i64,
@@ -92,6 +73,53 @@ pub fn get_expense_num(
     let rows = client.query(q, &[&n])?;
 
     Ok(rows)
+}
+
+pub fn get_expense_category(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    n: &i64,
+    category: &str,
+) -> Result<Vec<Row>, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let q = "WITH t AS (
+            SELECT expense.expense_id, expense.date,
+                   account.account_name, to_char(expense.amount, '999999999.00'),
+                   expense_category.category_name, expense.note
+      
+            FROM expense
+            LEFT JOIN expense_category
+            ON expense.category_id = expense_category.category_id
+            LEFT JOIN account
+            ON expense.account_id = account.account_id
+            WHERE expense_category.category_name = $1
+            ORDER BY date
+            DESC LIMIT $2
+   )
+   SELECT * FROM t ORDER BY date ASC;";
+
+    let rows = client.query(q, &[&category, &n])?;
+
+    Ok(rows)
+}
+
+pub fn expense_category_count(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    category: &str,
+) -> Result<i64, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let q = "SELECT COUNT(*)
+             FROM expense
+             LEFT JOIN expense_category
+             ON expense.category_id = expense_category.category_id
+             WHERE expense_category.category_name = $1";
+
+    let row = client.query_one(q, &[&category])?;
+    let count: i64 = row.get("count");
+    Ok(count)
 }
 
 pub fn get_subscriptions(

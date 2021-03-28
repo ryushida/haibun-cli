@@ -46,6 +46,10 @@ struct ViewOpts {
     /// Specify Number of Items to Display
     #[structopt(short)]
     number: Option<String>,
+
+    /// Specify Category
+    #[structopt(short)]
+    category: Option<String>,
 }
 
 #[derive(StructOpt, Debug)]
@@ -146,19 +150,34 @@ fn main() {
         if let Some(subcommand) = args.subcommand {
             match subcommand {
                 Sub::View(opt) => {
-                    if opt.number.is_none() {
-                        let table_vec: Vec<Row> = sql::get_expense(pool.clone()).unwrap();
+                    if opt.category.is_none() {
+                        let number = opt
+                            .number
+                            .as_deref()
+                            .unwrap_or("10")
+                            .parse::<i64>()
+                            .unwrap();
+                        let table_vec: Vec<Row> =
+                            sql::get_expense_num(pool.clone(), &number).unwrap();
+
                         let table_string = interface::expense_rows_to_table(table_vec);
                         println!("{}", table_string);
                     } else {
-                        let count = opt.number.as_deref().unwrap().parse::<i32>().unwrap();
+                        let category = &opt.category.as_deref().unwrap();
+                        let n = sql::expense_category_count(pool.clone(), &category).unwrap();
+                        let number = opt
+                            .number
+                            .as_deref()
+                            .unwrap_or(&n.to_string())
+                            .parse::<i64>()
+                            .unwrap();
 
-                        if count > 0 {
-                            let table_vec: Vec<Row> =
-                                sql::get_expense_num(pool.clone(), &i64::from(count)).unwrap();
-                            let table_string = interface::expense_rows_to_table(table_vec);
-                            println!("{}", table_string);
-                        }
+                        let table_vec: Vec<Row> =
+                            sql::get_expense_category(pool.clone(), &number, &category)
+                                .unwrap();
+
+                        let table_string = interface::expense_rows_to_table(table_vec);
+                        println!("{}", table_string);
                     }
                 }
                 Sub::Add(_opt) => {
