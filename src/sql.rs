@@ -23,10 +23,10 @@ pub fn get_account_values(
 
     let rows = client.query(
         "SELECT account.account_id, account_name, coalesce(account_value.account_value, 0)
-                             FROM account
-                             LEFT JOIN account_value
-                             ON account.account_id = account_value.account_id
-                             ORDER BY account_id",
+         FROM account
+         LEFT JOIN account_value
+         ON account.account_id = account_value.account_id
+         ORDER BY account_id",
         &[],
     )?;
 
@@ -217,7 +217,7 @@ pub fn get_subscriptions_sum(
         pool.get().unwrap();
 
     let rows = client.query_one(
-        "SELECT  'Total' as subscription_name,
+        "SELECT 'Total' as subscription_name,
          '' as category_name,
          SUM(subscription_price) as yearly,
          to_char(SUM(subscription_price)/12, '990D99') as monthly
@@ -256,8 +256,8 @@ pub fn check_portfolio(
 
     let rows = client.query_one(
         "SELECT COUNT(*) > 0
-                                 FROM portfolio
-                                 WHERE date = $1 AND item = $2 AND value = $3",
+        FROM portfolio
+        WHERE date = $1 AND item = $2 AND value = $3",
         &[&date, &item, &value],
     );
 
@@ -280,7 +280,7 @@ pub fn insert_portfolio(
 
     client.execute(
         "INSERT INTO portfolio (portfolio_id, date, item, value)
-               VALUES (DEFAULT, $1, $2, $3)",
+        VALUES (DEFAULT, $1, $2, $3)",
         &[&date, &item, &value],
     )?;
 
