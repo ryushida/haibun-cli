@@ -2,6 +2,8 @@
 
 Haibun is a command line application for managing your finances. Built with Rust and PostgreSQL.
 
+[Web Interface](https://github.com/ryushida/haibun-web)
+
 ## Features
 
 - Add and view expenses/subscriptions
