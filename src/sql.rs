@@ -286,3 +286,22 @@ pub fn insert_portfolio(
 
     Ok(())
 }
+
+pub fn portfolio_count(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<String, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let row = client.query_one(
+        "SELECT 'Count: ' || COUNT(*) as count
+         FROM portfolio
+         WHERE date = (select max (date) from  portfolio)",
+        &[],
+    )?;
+
+    let count = row.get("count");
+
+    Ok(count)
+}
+

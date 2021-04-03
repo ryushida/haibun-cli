@@ -238,6 +238,7 @@ fn main() {
                     table_vec.push(table_vec_sum);
                     let table_string = interface::portfolio_rows_to_table(table_vec);
                     println!("{}", table_string);
+                    println!("{}", sql::portfolio_count(pool.clone()).unwrap());
                 }
                 Sub::Add(opt) => {
                     let dir = env::current_dir().unwrap();
