@@ -242,3 +242,45 @@ pub fn update_account_values(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>)
     let table_string = account_values_to_table(&table_vec);
     println!("{}", table_string);
 }
+
+pub fn account_types_to_table(rows: &Vec<Row>) -> String {
+    let mut table = comfy_table::Table::new();
+    table
+        .load_preset(ASCII_MARKDOWN)
+        .set_content_arrangement(ContentArrangement::Dynamic)
+        .set_header(vec!["id", "Account Type"]);
+
+    for row in rows {
+        let id: i32 = row.get(0);
+        let account_type: &str = row.get(1);
+
+        table.add_row(vec![Cell::new(id), Cell::new(account_type)]);
+    }
+
+    table.to_string()
+}
+
+pub fn add_account_prompt(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) {
+
+    let account_name = user_input_text("Account Name");
+
+    println!("{}", account_type_table(pool.clone()));
+    let account_type_id = user_input_int("Enter number");
+
+    let value_input = user_input_float("Account Value");
+    let account_value: Decimal = Decimal::from_str(&value_input.to_string()).unwrap();
+
+    sql::add_account(
+        pool.clone(),
+        account_name,
+        account_type_id,
+        account_value,
+    )
+    .expect("Could not add");
+}
+
+fn account_type_table(pool: r2d2::Pool<PostgresConnectionManager<NoTls>>) -> String {
+    let account_type_vec: Vec<Row> = sql::get_account_types(pool.clone()).unwrap();
+    let table_string = account_types_to_table(&account_type_vec);
+    table_string
+}

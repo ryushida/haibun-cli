@@ -220,7 +220,7 @@ fn main() {
                     println!("{}", table_string);
                 }
                 Sub::Add(_opt) => {
-                    unimplemented!();
+                    interface::add_account_prompt(pool.clone());
                 }
                 Sub::Manage(_opt) => {
                     interface::update_account_values(pool.clone());

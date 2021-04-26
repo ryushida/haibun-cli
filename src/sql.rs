@@ -305,3 +305,58 @@ pub fn portfolio_count(
     Ok(count)
 }
 
+pub fn get_account_types(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+) -> Result<Vec<Row>, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let rows = client.query(
+        "SELECT account_type_id, account_type FROM account_type",
+        &[],
+    )?;
+
+    Ok(rows)
+}
+
+pub fn add_account(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    account_name: String,
+    account_type_id: i32,
+    account_value: Decimal,
+) -> Result<(), Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    client.execute(
+        "INSERT INTO account (account_id, account_name, account_type_id)
+         VALUES (DEFAULT, $1, $2)",
+        &[&account_name, &account_type_id],
+    )?;
+
+    let account_id = account_id_from_name(pool.clone(), account_name)?;
+
+    client.execute(
+        "INSERT INTO account_value (account_id, account_value)
+         VALUES ($1, $2)",
+        &[&account_id, &account_value],
+    )?;
+
+    Ok(())
+}
+
+fn account_id_from_name(
+    pool: r2d2::Pool<PostgresConnectionManager<NoTls>>,
+    account_name: String,
+) -> Result<i32, Error> {
+    let mut client: r2d2::PooledConnection<r2d2_postgres::PostgresConnectionManager<NoTls>> =
+        pool.get().unwrap();
+
+    let q = "SELECT *
+             FROM account
+             WHERE account_name = $1";
+
+    let row = client.query_one(q, &[&account_name])?;
+    let id: i32 = row.get("account_id");
+    Ok(id)
+}
